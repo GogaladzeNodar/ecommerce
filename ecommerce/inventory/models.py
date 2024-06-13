@@ -115,3 +115,151 @@ class Product(models.Model):
     
     def __str__(self):
         return self.name
+    
+
+#
+# ProductType 
+#
+
+class ProductType(models.Model):
+
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        null=False,
+        blank=False,
+        verbose_name=_("type of product"),
+        help_text=_("format: required, unique, max_255"),
+    )
+
+    def __str__(self):
+        return self.name 
+
+#
+# Brand
+#
+
+class Brand(models.Model):
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        null=False,
+        blank=False,
+        verbose_name=_("brand name"),
+        help_text=_("format: required, unique, max-255"),
+    )
+
+#
+# MODEL - ProductInventory
+#
+class ProductInventory(models.Model):
+
+    sku = models.CharField(
+        max_length=20,
+        unique=True,
+        null=False,
+        blank=False,
+        verbose_name=_("stock keeping unit"),
+        help_text=_("format: required, unique, max-20"),
+    )
+
+    upc = models.CharField(
+        max_length=12,
+        unique=True,
+        null=False,
+        blank=False,
+        verbose_name=_("universal product code"),
+        help_text=_("format: required, unique, max-12"),
+    )
+
+    product_type = models.ForeignKey(
+        ProductType, related_name="product_type", on_delete=models.PROTECT
+    )
+
+    product = models.ForeignKey(
+        Product, related_name="product", on_delete=models.PROTECT
+    )
+
+    brand = models.ForeignKey(
+        Brand, related_name="brand", on_delete=models.PROTECT
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_("product visibility"),
+        help_text=_("format: true=product visible"),
+    )
+
+    is_default = models.BooleanField(
+        default=False,
+        verbose_name=_("default selection"),
+        help_text=_("format: true=sub product selected"),
+    )
+
+    retail_price = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("recomended retail price"),
+        help_text=_("format: maximum price 999.99"),
+        error_messages={
+            "name":{
+                "max_length": _("the price must be between 0 and 999.99"),
+            },
+        },
+    )
+
+    store_price = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("regular store price"),
+        help_text=_("format: maximum price 999.99"),
+        error_messages={
+            "name": {
+                "max_length": _("the price must be between 0 and 999.99."),
+            },
+        },
+    )
+
+    sale_price = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("sale price"),
+        help_text=_("format: maximum price 999.99"),
+        error_messages={
+            "name": {
+                "max_length": _("the price must be between 0 and 999.99."),
+            },
+        },
+    )
+
+    weight = models.FloatField(
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("prouct weight"),
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_("date sub-product updated"),
+        help_text=_("format: Y-m-d H:M:S")
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_("date sub-product updated"),
+        help_text=_("format: Y-m-d H:M:S"),
+    )
+
+    def __str__(self):
+        return self.product.name
