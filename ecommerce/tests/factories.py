@@ -95,8 +95,25 @@ class ProductInventoryFactory(factory.django.DjangoModelFactory):
 
 
 
+#############################################
+#
+# factory for Media table
+#
+class MediaFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Media
+
+    product_inventory = factory.SubFactory(ProductInventoryFactory)
+    image = "images/default.png"
+    alt_text = "a default image solid color"
+    is_feature = True
+
+
+
+
 register(CategoryFactory)
 register(ProductFactory)
 register(ProductTypeFactory)
 register(BrandFactory)
 register(ProductInventoryFactory)
+register(MediaFactory)
