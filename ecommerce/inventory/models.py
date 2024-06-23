@@ -135,6 +135,10 @@ class ProductType(models.Model):
     def __str__(self):
         return self.name 
 
+
+
+
+
 #
 # Brand
 #
@@ -148,6 +152,61 @@ class Brand(models.Model):
         verbose_name=_("brand name"),
         help_text=_("format: required, unique, max-255"),
     )
+
+
+############################################################
+#
+# ProductAttribute table
+#
+
+class ProductAttribute(models.Model):
+
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        null=False,
+        blank=False,
+        verbose_name=_("product attribute name"),
+        help_text=_("format: required, unique, max-255"),
+    )
+
+    description = models.TextField(
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("product attribute description"),
+        help_text=_("format: required"),
+    )
+
+    def __str__(self):
+        return self.name
+
+#######################################################
+#
+# ProductAttributeValue Table
+#
+class ProductAttributeValue(models.Model):
+
+    product_attribute = models.ForeignKey(
+        ProductAttribute,
+        related_name="product_attribute",
+        on_delete=models.PROTECT
+    )
+
+    attribute_value = models.CharField(
+        max_length=255,
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("attribute value"),
+        help_text=_("format: text or numbers, required, max-255"),
+    )
+
+    def __str__(self):
+        return f"{self.product_attribute.name} : {self.attribute_value}"
+
+
+
 
 #
 # MODEL - ProductInventory
@@ -182,6 +241,12 @@ class ProductInventory(models.Model):
 
     brand = models.ForeignKey(
         Brand, related_name="brand", on_delete=models.PROTECT
+    )
+
+    attribute_values = models.ManyToManyField(
+        ProductAttributeValue,
+        related_name="product_attribute_values",
+        through="productattributevalues",
     )
 
     is_active = models.BooleanField(
@@ -364,3 +429,29 @@ class Stock(models.Model):
         help_text=_("format: required, default-0"),
     )
 
+    
+
+
+
+
+#######################################################
+#
+# ProductAttributeValues Table
+#  this tabel is connection for many to one relationship between ProductInventory and ProductAttributeValue
+
+class ProductAttributeValues(models.Model):
+
+    attributevalues = models.ForeignKey(
+        ProductAttributeValue,
+        related_name="attributevaluess",
+        on_delete=models.PROTECT,
+    )
+
+    productinventory = models.ForeignKey(
+        ProductInventory,
+        related_name="productattributevaluess",
+        on_delete=models.PROTECT,
+    )
+
+    class Meta:
+        unique_together = (("attributevalues", "productinventory"),)
